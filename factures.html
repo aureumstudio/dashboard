@@ -188,7 +188,7 @@ window.uploadFacture = async () => {
 
     // Nettoyage du nom de fichier : on enlève les accents et on remplace les caractères spéciaux par "_"
     const safeName = file.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9.]/gi, '_').replace(/_{2,}/g, '_');
-    const path = `${Date.now()}-${safeName}`; 
+    const path = safeName; 
 
     const { error } = await supabase.storage.from('factures').upload(path, file);
     if(error) alert(error.message); else await loadFiles();
