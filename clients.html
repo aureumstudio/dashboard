@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Gestion Clients - Administratif</title>
+<title>Clients - Administratif</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Inter,Arial,sans-serif;}
 body{background:#ffffff;color:#111827;padding:40px;max-width:1400px;margin:auto;}
@@ -14,6 +14,8 @@ h1{font-size:32px;}
 .desktop-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    grid-template-columns: repeat(auto-fill, 110px); /* Align blocks to the left with fixed width */
+    justify-content: start; /* Align grid items to the start */
     gap: 20px;
     margin-bottom: 35px;
     padding: 20px;
@@ -206,9 +208,10 @@ button {cursor:pointer;padding:8px 16px;border-radius:6px;border:none;font-weigh
         <a href="enzo.html">Enzo (60%)</a>
         <a href="partenaire.html">Ethan (40%)</a>
     </div>
-    <a href="clients.html" style="background:#f3f4f6;">Gestion Clients</a>
+    <a href="clients.html" style="background:#f3f4f6;">Clients</a>
     <a href="solde.html">Solde</a>
     <a href="factures.html">Factures</a>
+    <a href="taches.html">Tâches</a>
     <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
     <a href="settings.html">Paramètres</a>
 </div>
@@ -277,12 +280,25 @@ function render() { // Nouvelle fonction pour le rendu de l'interface
     const desktop = document.getElementById("desktop");
     desktop.innerHTML = "";
     
-    clients.forEach((c, i) => {
+    // No filtering needed as search bar is removed
+    clients.forEach((c) => {
+        const i = clients.indexOf(c);
+        
+        // Calcul alerte domaine
+        let expiryBadge = "";
+        if (c.domainDate) {
+            const diff = new Date(c.domainDate) - new Date();
+            const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+            if (days <= 0) expiryBadge = `<div class="badge-expiry expiry-danger">Expiré</div>`;
+            else if (days <= 30) expiryBadge = `<div class="badge-expiry expiry-warning">${days}j restants</div>`;
+        }
+
         // Ajout à la grille Desktop
         desktop.innerHTML += `
             <div class="file-item" onclick="openDetails(${i})">
                 <div class="file-icon"></div>
                 <div class="file-name">${c.name}</div>
+                ${expiryBadge}
             </div>
         `;
     });

@@ -223,6 +223,8 @@ button {
 .sidebar a{text-decoration:none;color:#374151;padding:12px;border-radius:8px;font-weight:500;transition:0.2s;}.sidebar a:hover{background:#f3f4f6;}
 .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);display:none;z-index:1999;}.sidebar-overlay.show{display:block;}
 
+#searchInput { padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; margin-right: 10px; outline: none; font-size: 14px; }
+
 @media (max-width: 768px) {
     body { padding: 20px; }
     .topbar { flex-direction: column; align-items: flex-start; gap: 15px; margin-top: 40px; }
@@ -239,6 +241,7 @@ button {
 <div class="topbar">
 <h1>Dashboard Ventes</h1>
 <div>
+    <input type="text" id="searchInput" placeholder="Chercher client..." oninput="render()">
     <button class="btn-new" onclick="openModal()">+ Nouveau Client</button>
     <span class="date" id="today"></span>
 </div>
@@ -336,9 +339,10 @@ button {
         <a href="enzo.html">Enzo (60%)</a>
         <a href="partenaire.html">Ethan (40%)</a>
     </div>
-    <a href="clients.html">Gestion Clients</a>
+    <a href="clients.html">Clients</a>
     <a href="solde.html">Solde</a>
     <a href="factures.html">Factures</a>
+    <a href="taches.html">Tâches</a>
     <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
     <a href="settings.html">Paramètres</a>
 </div>
@@ -509,10 +513,14 @@ let monthly=0;
 let yearly=0;
 let estimatedAnnualCurrentYear = 0;
 const desktop = document.getElementById("desktop");
+const query = document.getElementById("searchInput")?.value.toLowerCase() || "";
 desktop.innerHTML = "";
 
 const currentYear = new Date().getFullYear();
-clients.forEach((c,i)=>{
+const filtered = clients.filter(c => c.name.toLowerCase().includes(query));
+
+filtered.forEach((c)=>{
+const i = clients.indexOf(c);
 once+=c.once;
 monthly+=c.monthly;
 yearly+=c.yearly;
