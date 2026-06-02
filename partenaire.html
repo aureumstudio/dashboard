@@ -32,7 +32,7 @@ h1{font-size:32px;}
 </head>
 <body>
 <div class="topbar">
-    <h1>Dashboard Ethan <small style="font-size:14px; color:#6b7280;">(40%)</small></h1> <!-- Le texte sera mis à jour par JS -->
+    <h1>Dashboard Ethan <small style="font-size:14px; color:#6b7280;">(32%)</small></h1> <!-- Le texte sera mis à jour par JS -->
 </div>
 <div class="stats">
     <div class="card"><h3>Clients</h3><div class="value" id="clients">0</div></div>
@@ -49,8 +49,8 @@ h1{font-size:32px;}
     <a href="#" onclick="toggleSubNav(); return false;">Dashboard Ventes ▾</a>
     <div id="subNav" style="display:none; flex-direction:column; padding-left:15px; gap:5px;">
         <a href="dashboard.html">Général (100%)</a>
-        <a href="enzo.html">Enzo (60%)</a>
-        <a href="partenaire.html" style="background:#f3f4f6;">Ethan (40%)</a>
+        <a href="enzo.html">Enzo (48%)</a>
+        <a href="partenaire.html" style="background:#f3f4f6;">Ethan (32%)</a>
     </div>
     <a href="clients.html">Clients</a>
     <a href="solde.html">Solde</a>
@@ -83,7 +83,7 @@ const auth = getAuth(app);
 let clients = [];
 let chart;
 let userUid = null;
-let ETHAN_SHARE = 40;
+let ETHAN_SHARE = 32;
 let TAX_RATE = 0;
 let CURRENCY_SYMBOL = "€";
 let NET_FACTOR = 0;
@@ -114,7 +114,7 @@ async function loadUserData() {
         clients = data.clients || [];
         CURRENCY_SYMBOL = data.settings?.currencySymbol || "€";
         TAX_RATE = (data.settings?.taxRate || 0) / 100;
-        ETHAN_SHARE = (data.settings?.ethanShare || 40) / 100;
+        ETHAN_SHARE = (data.settings?.ethanShare || 32) / 100;
         NET_FACTOR = ETHAN_SHARE * (1 - TAX_RATE);
     }
     render();
@@ -134,9 +134,15 @@ function render(){
     let estimatedAnnualCurrentYear = 0;
     const currentYear = new Date().getFullYear();
     clients.forEach(c => {
-        let clientAnnualContribution = (c.monthly * 12 * NET_FACTOR) + (c.yearly * NET_FACTOR);
-        if (new Date(c.dateAdded).getFullYear() === currentYear) clientAnnualContribution += (c.once * NET_FACTOR); // Adjusted for Ethan's share and tax
-        estimatedAnnualCurrentYear += clientAnnualContribution;
+        const addDate = new Date(c.dateAdded);
+        const addYear = addDate.getFullYear();
+        let months = 0;
+        if (addYear < currentYear) months = 12;
+        else if (addYear === currentYear) months = 12 - addDate.getMonth();
+
+        let contribution = (c.monthly * months) + (addYear <= currentYear ? c.yearly : 0);
+        if (addYear === currentYear) contribution += c.once;
+        estimatedAnnualCurrentYear += (contribution * NET_FACTOR);
     });
     document.getElementById("clients").textContent = clients.length;
     document.getElementById("once").textContent = once.toFixed(2) + CURRENCY_SYMBOL;
